@@ -17,7 +17,7 @@ const cipherText = [
   const maxLength = cipherText.length //maxLength = 11 - the total of all ciphertexts
 
   const key = new Array(200).fill(1)
-const allAsciiCipherText = []
+  const allAsciiCipherText = []
 
 //Process hexadecimal strings into corresponding ascii characters (each two characters represent one ascii symbol)
 const hexToAscii = (str) => {
