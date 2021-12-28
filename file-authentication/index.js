@@ -35,27 +35,37 @@ const readReversedChunks = (file, fileSize, chunkSize, lastChunkSize) => {
 };
 
 const calculateHashFile = (filePath) => {
-	//get file size in bytes
-	const stats = fs.statSync(filePath);
-	const fileSize = stats.size;
-	// get the last block size
-	const lastBlockofFile = fileSize % blockSize;
-	//open file, return a buffer
-	console.log(`Opening file: ${filePath} ; ${fileSize} bytes`);
-	const file = fs.readFileSync(filePath);
-	let lastHash = ""; //the last hash (h0)
-	//get chunks from file
-	const chunks = readReversedChunks(file, fileSize, blockSize, lastBlockofFile);
-	for (let i = 0; i < chunks.length; i++) {
-		hashSum = crypto.createHash("sha256");
-		hashSum.update(chunks[i]);
-		if (lastHash) {
-			hashSum.update(lastHash);
+	try {
+		//get file size in bytes
+		const stats = fs.statSync(filePath);
+		const fileSize = stats.size;
+		// get the last block size
+		const lastBlockofFile = fileSize % blockSize;
+		//open file, return a buffer
+		console.log(`Opening file: ${filePath} ; ${fileSize} bytes`);
+		const file = fs.readFileSync(filePath);
+		let lastHash = ""; //the last hash (h0)
+		//get chunks from file
+		const chunks = readReversedChunks(
+			file,
+			fileSize,
+			blockSize,
+			lastBlockofFile
+		);
+		for (let i = 0; i < chunks.length; i++) {
+			hashSum = crypto.createHash("sha256");
+			hashSum.update(chunks[i]);
+			if (lastHash) {
+				hashSum.update(lastHash);
+			}
+			lastHash = hashSum.digest();
 		}
-		lastHash = hashSum.digest();
+		// convert lash hash buffer to hex string
+		return lastHash.toString("hex");
+	} catch (err) {
+		// error while reading file
+		console.log(err);
 	}
-	// convert lash hash buffer to hex string
-	return lastHash.toString("hex");
 };
 
 // check if the algorithm is correct
