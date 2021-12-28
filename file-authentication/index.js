@@ -1,22 +1,33 @@
+//import libraries
 const fs = require("fs");
 const crypto = require("crypto");
-const blockSize = 1024;
-const filePath = "./file/birthday.mp4";
+//constraints and file
+const blockSize = 1024; //bytes
+const fileCheck = "./file/birthday.mp4";
+const actualResult =
+	"03c08f4ee0b576fe319338139c045c89c3e8e9409633bea29442e21425006ea8";
+const fileTarget = "./file/target.mp4";
 
-const stats = fs.statSync(filePath);
-const fileSize = stats.size;
+/*
+	The function reads a block of data (size `buffersize` in bytes)
+    at a time, starting from the last block to the first block of the file
+    The last block of the file (which is the first block we read)
+    might be less than the buffersize while all other blocks are exactly
+    of length `buffersize` 
+*/
 
-const readReversedChunks = (file, fileSize, chunkSize, lastChuckSize) => {
+const readReversedChunks = (file, fileSize, chunkSize, lastChunkSize) => {
 	let iter = 0;
 	let lastPos = fileSize;
 	let result = [];
 	while (lastPos > 0) {
 		size = chunkSize;
 		if (iter === 0) {
-			size = lastChuckSize;
+			size = lastChunkSize;
 		}
-		f = Buffer.from(file.subarray(lastPos - size, lastPos));
-		result.push({ chunk: lastPos - size, buffer: f });
+		//slice the buffer from "last_pos - size" to "lastPos"
+		chunk = Buffer.from(file.subarray(lastPos - size, lastPos));
+		result.push(chunk);
 		iter++;
 		lastPos -= size;
 	}
@@ -24,23 +35,50 @@ const readReversedChunks = (file, fileSize, chunkSize, lastChuckSize) => {
 };
 
 const calculateHashFile = (filePath) => {
+	//get file size in bytes
+	const stats = fs.statSync(filePath);
+	const fileSize = stats.size;
+	// get the last block size
 	const lastBlockofFile = fileSize % blockSize;
+	//open file, return a buffer
 	console.log(`Opening file: ${filePath} ; ${fileSize} bytes`);
 	const file = fs.readFileSync(filePath);
-	let lastHash = "";
+	let lastHash = ""; //the last hash (h0)
+	//get chunks from file
 	const chunks = readReversedChunks(file, fileSize, blockSize, lastBlockofFile);
 	for (let i = 0; i < chunks.length; i++) {
 		hashSum = crypto.createHash("sha256");
-		hashSum.update(chunks[i].buffer);
+		hashSum.update(chunks[i]);
 		if (lastHash) {
 			hashSum.update(lastHash);
 		}
 		lastHash = hashSum.digest();
 	}
-	return console.log(lastHash);
+	// convert lash hash buffer to hex string
+	return lastHash.toString("hex");
 };
 
-calculateHashFile(filePath);
+// check if the algorithm is correct
+const fileCheckResult = calculateHashFile(fileCheck);
 
-// Output :
-// <Buffer 03 c0 8f 4e e0 b5 76 fe 31 93 38 13 9c 04 5c 89 c3 e8 e9 40 96 33 be a2 94 42 e2 14 25 00 6e a8>
+console.log(
+	fileCheckResult,
+	fileCheckResult == actualResult ? "correct" : "wrong encoding result"
+);
+
+/* Output :
+Opening file: ./file/birthday.mp4 ; 16927313 bytes
+03c08f4ee0b576fe319338139c045c89c3e8e9409633bea29442e21425006ea8 correct 
+*/
+
+/* encode another video
+link to video: https://www.youtube.com/watch?v=dQw4w9WgXcQ */
+
+const fileTargetResult = calculateHashFile(fileTarget);
+
+console.log(fileTargetResult);
+
+/* Output : 
+Opening file: ./file/target.mp4 ; 22161810 bytes
+3a2513cb0051b412ad800f5e63510604ff6004eef2b2aa489d5853cb53156274 
+*/
