@@ -68,26 +68,24 @@ const calculateHashFile = (filePath) => {
 	}
 };
 
-// check if the algorithm is correct
+// verify algorithm
 const fileCheckResult = calculateHashFile(fileCheck);
-
 console.log(
-	fileCheckResult,
-	fileCheckResult == actualResult ? "correct" : "wrong encoding result"
+	`Hash 0:${fileCheckResult},
+Given h0:${actualResult},
+Verified: ${fileCheckResult == actualResult ? "true" : "wrong encoding result"}`
 );
 
 /* Output :
 Opening file: ./file/birthday.mp4 ; 16927313 bytes
-03c08f4ee0b576fe319338139c045c89c3e8e9409633bea29442e21425006ea8 correct 
+Hash 0:03c08f4ee0b576fe319338139c045c89c3e8e9409633bea29442e21425006ea8,
+Given h0:03c08f4ee0b576fe319338139c045c89c3e8e9409633bea29442e21425006ea8,
+Verified: true
 */
 
-/* encode another video
-link to video: https://www.youtube.com/watch?v=dQw4w9WgXcQ */
-
+/* encode another video */
 const fileTargetResult = calculateHashFile(fileTarget);
-
 console.log(fileTargetResult);
-
 /* Output : 
 Opening file: ./file/target.mp4 ; 22161810 bytes
 3a2513cb0051b412ad800f5e63510604ff6004eef2b2aa489d5853cb53156274 

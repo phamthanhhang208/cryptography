@@ -9,6 +9,14 @@ Our goal in this project is to build a file authentication system that lets brow
 3. Compute hash of this augmented second to last block and append value to the third from the end.
 4. Repeat process to the first block.
 
+```
+    |<- SHA256 <-|    |<--- SHA256 <-|    |<- SHA256 <-|
+    |            |    |              |    |            |
+    |    ,-------+----|--.   ,-------+----|--.   ,-----+------.
+    h0   | block #0 | h1 |   | block #1 | h2 |   |  block #2  |
+         `---------------'   `---------------'   `------------'
+```
+
 The final hash value `h0` (hash of the first block with its appended hash) is distributed to users via the authenticated channel.
 
 Browser downloads the file one block at a time, where each block includes the appended hash value as above.
@@ -25,3 +33,47 @@ We use an existing [crypto module] in NodeJS, for its SHA256 hashes.
 If the file size is not a multiple of 1KB then the very last block will be shorter than 1KB, but all other blocks will be exactly 1KB.
 
 Compute the hash `h0` of a given file F and verify blocks of F as they are received by the client.
+
+## Usage
+
+### Prerequisite
+
+> Ensure to have NodeJS v11.x
+
+### Install
+
+```bash
+npm install
+```
+
+or
+
+```bash
+yarn install
+```
+
+### Run
+
+```bash
+node index
+```
+
+## Result
+
+Verify the algorithm
+
+```bash
+Opening file: ./file/birthday.mp4 ; 16927313 bytes
+Hash 0:03c08f4ee0b576fe319338139c045c89c3e8e9409633bea29442e21425006ea8,
+Given h0:03c08f4ee0b576fe319338139c045c89c3e8e9409633bea29442e21425006ea8,
+Verified: true
+```
+
+Sign another video
+
+> link to video: https://www.youtube.com/watch?v=dQw4w9WgXcQ
+
+```bash
+Opening file: ./file/target.mp4 ; 22161810 bytes
+3a2513cb0051b412ad800f5e63510604ff6004eef2b2aa489d5853cb53156274
+```
